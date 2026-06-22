@@ -1,20 +1,19 @@
 /* 사이트 전체 기본 설정 */
 body {
     font-family: 'Malgun Gothic', sans-serif;
-    /* 사이트 전체에 고급스러운 그라데이션 배경 적용 */
     background: linear-gradient(to right, #06311f 0%, #0b3d2e 50%, #06311f 100%);
     color: #e0d8c3;
     margin: 0;
     padding: 0;
 }
 
-/* 상단 고정 헤더 */
+/* 상단 고정 헤더 - 수정됨: 배경색 추가 및 고정 위치 확실히 함 */
 .sticky-header {
     position: sticky;
     top: 0;
     z-index: 1000;
-    background-color: transparent;
-    border-bottom: none;
+    background-color: #06311f; /* 배경색을 추가하여 스크롤 시 겹침 방지 */
+    border-bottom: 1px solid #2a5a4d;
 }
 
 /* 배너 영역 */
@@ -52,12 +51,16 @@ table {
     background-color: transparent;
 }
 
-th {
-    background-color: transparent;
+/* 테이블 헤더 고정 - 추가됨: sticky-header 아래에 붙어서 고정 */
+thead th {
+    position: sticky;
+    top: 200px; /* 헤더 영역(160px) + 컨트롤 영역(약 40px)의 높이만큼 띄움 */
+    background-color: #0b3d2e; /* 헤더 배경색 설정 */
     color: #f4d03f;
     padding: 12px;
     border: 1px solid #2a5a4d;
     text-align: center;
+    z-index: 900;
 }
 
 td {
@@ -77,13 +80,13 @@ td {
 /* 입력창 및 기타 요소 */
 .note-input {
     width: 100%;
-    min-height: 40px;    /* 기본 높이 설정 */
+    min-height: 40px;
     box-sizing: border-box;
     background: transparent;
     border: 1px solid #2a5a4d;
     color: #fff;
     padding: 5px;
-    resize: vertical;    /* 세로 방향으로만 크기 조절 가능하게 */
+    resize: vertical;
     vertical-align: middle;
 }
 
@@ -96,7 +99,6 @@ td {
 .dog-icon {
     width: 30px;
     transition: opacity 0.1s;
-    /* 중요: 배경색과 테두리를 완벽하게 제거 */
     background: transparent !important;
     border: none !important;
     display: block;
