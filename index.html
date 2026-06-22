@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>자막 학습기</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+
+<div class="sticky-header">
+    <div class="header-banner"></div>
+    <div class="controls">
+        <input type="file" id="file-input" accept=".xlsx">
+        <button onclick="saveFile()">[최종 저장]</button>
+    </div>
+</div>
+
+<table id="subtitle-table">
+    <thead>
+        <tr>
+            <th class="col-time">Time</th>
+            <th class="col-kor">Human Translation</th>
+            <th class="col-eng">Subtitle</th>
+            <th class="col-note">Notes</th>
+        </tr>
+    </thead>
+    <tbody id="table-body"></tbody>
+</table>
+
+<script>
+let currentData = [];
+document.getElementById('file-input').addEventListener('change', function(e) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        var wb = XLSX.read(new Uint8Array(e.target.result), {type: 'array'});
+        currentData = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]).map(row => ({
+            ...row, highlight: row.Highlight === "TRUE" || row.highlight === true, Notes: row.Notes || ''
+        }));
+        renderTable();
+    };
+    reader.readAsArrayBuffer(e.target.files[0]);
+});
+
+function renderTable() {
+    var tbody = document.getElementById('table-body');
+    tbody.innerHTML = '';
+    currentData.forEach((row, i) => {
+        let wordsHtml = (row.Subtitle || '').split(/\s+/).map(w => {
+            let clean = w.replace(/[^a-zA-Z]/g, '');
+            return clean ? `<span class="word" style="cursor:pointer; border-bottom:1px dotted #a5d6a7;" onclick="searchWord('${clean}')">${w}</span>` : w;
+        }).join(' ');
+
+        var tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${row.Time || ''}</td>
+            <td class="kor-text ${row.highlight ? 'highlight' : ''}" onclick="toggleHighlight(${i})">${row['Human Translation'] || ''}</td>
+            <td class="eng-container">
+                <img src="dog2.png" class="dog-icon">
+                <span class="eng-text">${wordsHtml}</span>
+            </td>
+            <td><textarea class="note-input" onblur="currentData[${i}].Notes = this.value">${row.Notes || ''}</textarea></td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function toggleHighlight(i) { currentData[i].highlight = !currentData[i].highlight; renderTable(); }
+function searchWord(w) { window.open('https://dict.naver.com/enendict/#/search?query=' + encodeURIComponent(w), '_blank'); }
+function saveFile() {
+    let exportData = currentData.map(r => ({ ...r, Highlight: r.highlight ? "TRUE" : "FALSE" }));
+    var ws = XLSX.utils.json_to_sheet(exportData);
+    var wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+    XLSX.writeFile(wb, "학습완료_자막.xlsx");
+}
+</script>
+</body>
+</html>
